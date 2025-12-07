@@ -512,9 +512,36 @@ namespace DiskBenchmark.Services
             }
         }
 
+        /// <summary>
+        /// 将Windows路径转换为FIO需要的格式 (例如: C:\test\file.tmp -> c\:test\file.tmp)
+        /// </summary>
+        private string ConvertPathForFIO(string windowsPath)
+        {
+            if (string.IsNullOrEmpty(windowsPath))
+            {
+                return windowsPath;
+            }
+
+            // 如果是绝对路径（包含盘符），转换格式
+            if (Path.IsPathRooted(windowsPath) && windowsPath.Length >= 2 && windowsPath[1] == ':')
+            {
+                // 提取盘符（转换为小写）和剩余路径
+                var driveLetter = char.ToLower(windowsPath[0]);
+                var remainingPath = windowsPath.Substring(2); // 跳过 "C:"
+                
+                // 将反斜杠转换为反斜杠（保持反斜杠，因为FIO在Windows上使用反斜杠）
+                // 格式: c\:path\to\file
+                return $"{driveLetter}\\:{remainingPath}";
+            }
+
+            // 如果不是绝对路径，直接返回
+            return windowsPath;
+        }
+
         private string GenerateFIOCommand(BenchmarkConfig config)
         {
             var testFile = Path.Combine(config.TestPath, "fio_test.tmp");
+            var fioTestFile = ConvertPathForFIO(testFile);
             var fileSize = $"{config.FileSizeMB}M";
             var blockSize = $"{config.BlockSizeKB}K";
             
@@ -533,7 +560,7 @@ namespace DiskBenchmark.Services
             var args = new List<string>
             {
                 $"--name=disk_benchmark",
-                $"--filename={testFile}",
+                $"--filename={fioTestFile}",
                 $"--bs={blockSize}",
                 $"--rw={rwMode}",
                 $"--iodepth={config.QueueDepth}",
@@ -622,6 +649,7 @@ namespace DiskBenchmark.Services
                 try
                 {
                     var testFile = Path.Combine(config.TestPath, "fio_test.tmp");
+                    var fioTestFile = ConvertPathForFIO(testFile);
                     var fileSize = $"{config.FileSizeMB}M";
                     var blockSize = $"{config.BlockSizeKB}K";
                     
@@ -640,7 +668,7 @@ namespace DiskBenchmark.Services
                     var args = new List<string>
                     {
                         $"--name=disk_benchmark",
-                        $"--filename={testFile}",
+                        $"--filename={fioTestFile}",
                         $"--bs={blockSize}",
                         $"--rw={rwMode}",
                         $"--iodepth={config.QueueDepth}",
