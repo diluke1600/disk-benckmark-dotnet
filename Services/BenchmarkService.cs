@@ -575,27 +575,61 @@ namespace DiskBenchmark.Services
                     return "不能使用根目录作为测试路径，请选择具体的文件夹。";
                 }
 
-                // 检查路径是否可写（尝试创建临时文件测试）
+                // 检查路径是否可写（实际尝试创建和删除临时文件来验证写权限）
+                // 这比只检查读权限更准确，因为测试需要创建文件
+                string? tempTestFile = null;
                 try
                 {
-                    var testFile = Path.Combine(fullPath, "fio_test.tmp");
-                    // 不实际创建文件，只检查路径是否有效
-                    // 如果路径包含文件名，检查父目录
-                    var directory = Path.GetDirectoryName(testFile);
-                    if (string.IsNullOrEmpty(directory))
+                    // 生成唯一的临时文件名，避免与现有文件冲突
+                    tempTestFile = Path.Combine(fullPath, $"fio_test_validation_{Guid.NewGuid():N}.tmp");
+                    
+                    // 尝试创建临时文件来验证写权限
+                    using (var fs = File.Create(tempTestFile))
                     {
-                        directory = fullPath;
+                        // 写入一个字节来确保文件系统真正创建了文件
+                        fs.WriteByte(0);
                     }
                     
-                    // 检查目录权限（通过尝试获取文件列表）
-                    Directory.GetFiles(directory);
+                    // 如果创建成功，立即删除临时文件
+                    if (File.Exists(tempTestFile))
+                    {
+                        File.Delete(tempTestFile);
+                    }
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    return $"没有权限访问测试路径: {fullPath}\n请确保您有该路径的读写权限。";
+                    // 清理可能创建的临时文件
+                    if (tempTestFile != null && File.Exists(tempTestFile))
+                    {
+                        try { File.Delete(tempTestFile); } catch { }
+                    }
+                    return $"没有写权限访问测试路径: {fullPath}\n请确保您有该路径的写权限，测试需要在此路径创建文件。";
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    // 清理可能创建的临时文件
+                    if (tempTestFile != null && File.Exists(tempTestFile))
+                    {
+                        try { File.Delete(tempTestFile); } catch { }
+                    }
+                    return $"测试路径不存在: {fullPath}\n请确保路径存在且可访问。";
+                }
+                catch (IOException ex)
+                {
+                    // 清理可能创建的临时文件
+                    if (tempTestFile != null && File.Exists(tempTestFile))
+                    {
+                        try { File.Delete(tempTestFile); } catch { }
+                    }
+                    return $"无法在测试路径创建文件: {fullPath}\n错误: {ex.Message}\n请确保您有该路径的写权限。";
                 }
                 catch (Exception ex)
                 {
+                    // 清理可能创建的临时文件
+                    if (tempTestFile != null && File.Exists(tempTestFile))
+                    {
+                        try { File.Delete(tempTestFile); } catch { }
+                    }
                     return $"无法访问测试路径: {fullPath}\n错误: {ex.Message}";
                 }
 
@@ -1207,4 +1241,3 @@ namespace DiskBenchmark.Services
         }
     }
 }
-

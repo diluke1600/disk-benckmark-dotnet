@@ -168,8 +168,10 @@ namespace DiskBenchmark
 
         private void TestPathTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            // 验证路径
-            var pathValidationError = _benchmarkService.ValidateTestPath(_config.TestPath);
+            // 验证路径 - 直接验证 TextBox 的实际内容，而不是 _config.TestPath
+            // 这样可以确保验证的是用户实际输入的值，避免同步问题
+            var actualPath = TestPathTextBox.Text;
+            var pathValidationError = _benchmarkService.ValidateTestPath(actualPath);
             if (pathValidationError != null)
             {
                 // 显示警告提示，但不阻止用户继续输入
@@ -179,7 +181,8 @@ namespace DiskBenchmark
             }
             else
             {
-                // 清除警告提示
+                // 验证通过，更新配置并清除警告提示
+                _config.TestPath = actualPath;
                 TestPathTextBox.ToolTip = null;
                 TestPathTextBox.Background = System.Windows.Media.Brushes.White;
             }
@@ -666,4 +669,3 @@ namespace DiskBenchmark
         }
     }
 }
-

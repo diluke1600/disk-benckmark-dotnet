@@ -1,11 +1,12 @@
 using System;
+using System.IO;
 
 namespace DiskBenchmark.Models
 {
     public class BenchmarkConfig
     {
-        // 测试路径
-        public string TestPath { get; set; } = @"C:\";
+        // 测试路径 - 默认为程序当前路径
+        public string TestPath { get; set; } = AppDomain.CurrentDomain.BaseDirectory;
 
         // 测试文件大小 (MB)
         public int FileSizeMB { get; set; } = 1024; // 默认1GB
