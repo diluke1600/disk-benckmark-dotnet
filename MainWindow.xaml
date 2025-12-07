@@ -1,0 +1,348 @@
+<Window x:Class="DiskBenchmark.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:local="clr-namespace:DiskBenchmark"
+        Title="磁盘性能测试工具" Height="650" Width="1200"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 菜单栏 -->
+        <Border Grid.Row="0" Background="#2196F3" Padding="0">
+            <Menu>
+                <MenuItem Header="设置(_S)">
+                    <MenuItem Header="高级设置(_A)" Click="AdvancedSettings_Click">
+                        <MenuItem.Icon>
+                            <TextBlock Text="⚙" FontSize="14"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+                <MenuItem Header="帮助(_H)">
+                    <MenuItem Header="FIO参数说明(_F)" Click="FioParametersHelp_Click">
+                        <MenuItem.Icon>
+                            <TextBlock Text="?" FontSize="14" FontWeight="Bold"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="关于(_A)" Click="About_Click">
+                        <MenuItem.Icon>
+                            <TextBlock Text="ℹ" FontSize="14"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+            </Menu>
+        </Border>
+
+        <!-- 配置区域 -->
+        <hc:Card Grid.Row="1" Margin="15,10,15,10" Padding="15">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBlock Text="⚙" FontSize="20" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock Text="测试配置" FontSize="18" FontWeight="Bold"/>
+                    <TextBlock x:Name="FioVersionText" Text="" 
+                               FontSize="12" Foreground="Gray" 
+                               Margin="20,0,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+                
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 测试路径 -->
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="测试路径" 
+                               FontSize="13" FontWeight="SemiBold"
+                               VerticalAlignment="Center" Margin="0,0,8,8"/>
+                    <Grid Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="7" Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <hc:TextBox x:Name="TestPathTextBox" Grid.Column="0" 
+                                    hc:InfoElement.Placeholder="选择测试路径"
+                                    Margin="0,0,8,0" Height="28"/>
+                        <Button Grid.Column="1" Click="BrowsePath_Click"
+                                ToolTip="浏览文件夹"
+                                Width="35" Height="28"
+                                Background="#2196F3" Foreground="White">
+                            <TextBlock Text="📁" FontSize="16"/>
+                        </Button>
+                    </Grid>
+
+                    <!-- 测试类型 -->
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="测试类型" 
+                               FontSize="13" FontWeight="SemiBold"
+                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ComboBox Grid.Row="1" Grid.Column="1" x:Name="TestTypeComboBox" 
+                              hc:InfoElement.Placeholder="选择测试类型"
+                              Margin="0,0,0,0" Height="28"/>
+
+                    <!-- 文件大小 -->
+                    <TextBlock Grid.Row="1" Grid.Column="3" Text="文件大小" 
+                               FontSize="13" FontWeight="SemiBold"
+                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ComboBox Grid.Row="1" Grid.Column="4" x:Name="FileSizeComboBox" 
+                              hc:InfoElement.Placeholder="选择文件大小"
+                              Margin="0,0,0,0" Height="28"/>
+
+                    <!-- 持续时间 -->
+                    <TextBlock Grid.Row="1" Grid.Column="6" Text="持续时间" 
+                               FontSize="13" FontWeight="SemiBold"
+                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <Grid Grid.Row="1" Grid.Column="7">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <hc:TextBox Grid.Column="0" x:Name="DurationTextBox" 
+                                    hc:InfoElement.Placeholder="持续时间"
+                                    Height="28" Margin="0,0,5,0"
+                                    PreviewTextInput="NumberValidationTextBox"
+                                    LostFocus="DurationTextBox_LostFocus"/>
+                        <TextBlock Grid.Column="1" Text="秒" 
+                                   FontSize="13" VerticalAlignment="Center"
+                                   Foreground="Gray"/>
+                    </Grid>
+                </Grid>
+            </StackPanel>
+        </hc:Card>
+
+        <!-- 命令预览 -->
+        <hc:Card Grid.Row="2" Margin="15,0,15,10" Padding="15">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBlock Text="&lt;/&gt;" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0" FontFamily="Consolas"/>
+                    <TextBlock Text="待执行命令" FontSize="16" FontWeight="Bold"/>
+                </StackPanel>
+                <hc:TextBox x:Name="CommandPreviewTextBox" 
+                            IsReadOnly="True" 
+                            TextWrapping="Wrap"
+                            AcceptsReturn="True"
+                            VerticalScrollBarVisibility="Auto"
+                            HorizontalScrollBarVisibility="Auto"
+                            hc:InfoElement.Placeholder="命令预览"
+                            FontFamily="Consolas"
+                            FontSize="11"
+                            MaxHeight="80"
+                            MinHeight="35"
+                            ToolTip="双击复制命令到剪贴板"
+                            MouseDoubleClick="CommandPreviewTextBox_MouseDoubleClick">
+                    <TextBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="复制" Click="CopyCommand_Click"/>
+                        </ContextMenu>
+                    </TextBox.ContextMenu>
+                </hc:TextBox>
+            </StackPanel>
+        </hc:Card>
+
+        <!-- 测试结果 -->
+        <hc:Card Grid.Row="3" Margin="15,0,15,10" Padding="15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="5"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- 左侧：基本测试结果 -->
+                <StackPanel Grid.Column="0">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBlock Text="📊" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="测试结果" FontSize="16" FontWeight="Bold"/>
+                    </StackPanel>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="读取速度" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="ReadSpeedText" Text="-- MB/s" 
+                                       FontSize="13" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="写入速度" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="WriteSpeedText" Text="-- MB/s" 
+                                       FontSize="13" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="读取IOPS" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="ReadIOPSText" Text="--" 
+                                       FontSize="13" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="写入IOPS" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="WriteIOPSText" Text="--" 
+                                       FontSize="13" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="读取延迟" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" x:Name="ReadLatencyText" Text="-- ms" 
+                                       FontSize="13" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="写入延迟" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="5" Grid.Column="1" x:Name="WriteLatencyText" Text="-- ms" 
+                                       FontSize="13" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            
+                            <Separator Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,8,0,8"/>
+                            
+                            <TextBlock Grid.Row="7" Grid.Column="0" Text="状态" FontSize="12" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Row="7" Grid.Column="1" x:Name="StatusText" Text="就绪" 
+                                       FontSize="13" FontWeight="SemiBold"/>
+                        </Grid>
+                    </ScrollViewer>
+                    <TextBlock x:Name="ProgressText" Text="" Margin="0,8,0,0" 
+                               FontSize="11" Foreground="Gray"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+                
+                <!-- 分隔线 -->
+                <Border Grid.Column="1" Background="LightGray" Width="1" Margin="0,5"/>
+                
+                <!-- 右侧：详细测试报告 -->
+                <StackPanel Grid.Column="2" Margin="10,0,0,0">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBlock Text="📋" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="详细报告" FontSize="16" FontWeight="Bold"/>
+                    </StackPanel>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="测试时间" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="DetailTestTimeText" Text="--" 
+                                       FontSize="12" Margin="0,0,0,8"/>
+                            
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="测试路径" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="DetailTestPathText" Text="--" 
+                                       FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                            
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="测试类型" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="DetailTestTypeText" Text="--" 
+                                       FontSize="12" Margin="0,0,0,8"/>
+                            
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="文件大小" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="DetailFileSizeText" Text="--" 
+                                       FontSize="12" Margin="0,0,0,8"/>
+                            
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="块大小" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" x:Name="DetailBlockSizeText" Text="--" 
+                                       FontSize="12" Margin="0,0,0,8"/>
+                            
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="线程数" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="5" Grid.Column="1" x:Name="DetailThreadCountText" Text="--" 
+                                       FontSize="12" Margin="0,0,0,8"/>
+                            
+                            <TextBlock Grid.Row="6" Grid.Column="0" Text="IO深度" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="6" Grid.Column="1" x:Name="DetailQueueDepthText" Text="--" 
+                                       FontSize="12" Margin="0,0,0,8"/>
+                            
+                            <TextBlock Grid.Row="7" Grid.Column="0" Text="持续时间" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="7" Grid.Column="1" x:Name="DetailDurationText" Text="--" 
+                                       FontSize="12" Margin="0,0,0,8"/>
+                            
+                            <TextBlock Grid.Row="8" Grid.Column="0" Text="FIO版本" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="8" Grid.Column="1" x:Name="DetailFioVersionText" Text="--" 
+                                       FontSize="12" Margin="0,0,0,8"/>
+                            
+                            <Separator Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,8,0,8"/>
+                            
+                            <TextBlock Grid.Row="10" Grid.Column="0" Text="测试命令" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="10" Grid.Column="1" x:Name="DetailCommandText" Text="--" 
+                                       FontSize="11" FontFamily="Consolas" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                            
+                            <TextBlock Grid.Row="11" Grid.Column="0" Text="错误信息" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="11" Grid.Column="1" x:Name="DetailErrorMessageText" Text="--" 
+                                       FontSize="12" TextWrapping="Wrap" Foreground="Red" Margin="0,0,0,8"/>
+                        </Grid>
+                    </ScrollViewer>
+                </StackPanel>
+            </Grid>
+        </hc:Card>
+
+        <!-- 按钮区域 -->
+        <hc:Card Grid.Row="4" Margin="15,0,15,15" Padding="15">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="StartTestButton" Click="StartTest_Click"
+                        Margin="5"
+                        Background="#2196F3" Foreground="White" Padding="10,5">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="▶" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock x:Name="StartTestButtonText" Text="开始测试" FontSize="14"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="StopTestButton" Click="StopTest_Click" IsEnabled="False"
+                        Margin="5"
+                        Padding="10,5">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="■" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="停止测试" FontSize="14"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="ViewHistoryButton" Click="ViewHistory_Click"
+                        Margin="5"
+                        Padding="10,5">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🕐" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="查看历史" FontSize="14"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="ResetConfigButton" Click="ResetConfig_Click"
+                        Margin="5"
+                        Padding="10,5">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="↻" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="重置配置" FontSize="14"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </hc:Card>
+    </Grid>
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <local:InverseBooleanConverter x:Key="InverseBoolConverter"/>
+    </Window.Resources>
+</Window>

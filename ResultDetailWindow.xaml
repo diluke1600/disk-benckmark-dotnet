@@ -1,0 +1,180 @@
+<Window x:Class="DiskBenchmark.ResultDetailWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:local="clr-namespace:DiskBenchmark"
+        Title="测试结果详情" Height="500" Width="600"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <hc:Card Margin="0,0,0,15" Padding="15">
+                    <StackPanel>
+                        <TextBlock Text="基本信息" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+                        
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="测试时间:" FontSize="13" FontWeight="SemiBold" Width="100"/>
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <Binding Path="TestTime" StringFormat="yyyy-MM-dd HH:mm:ss"/>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="测试路径:" FontSize="13" FontWeight="SemiBold" Width="100"/>
+                            <TextBlock Text="{Binding TestPath, TargetNullValue=--}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="测试类型:" FontSize="13" FontWeight="SemiBold" Width="100"/>
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <Binding Path="TestType" TargetNullValue="--"/>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="状态:" FontSize="13" FontWeight="SemiBold" Width="100"/>
+                            <TextBlock Text="{Binding Status, TargetNullValue=--}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </hc:Card>
+
+                <hc:Card Margin="0,0,0,15" Padding="15">
+                    <StackPanel>
+                        <TextBlock Text="性能指标" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+                        
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="读取速度:" FontSize="13" FontWeight="SemiBold" Width="100"/>
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <Binding Path="ReadSpeed" StringFormat="{}{0:F2} MB/s"/>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="写入速度:" FontSize="13" FontWeight="SemiBold" Width="100"/>
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <Binding Path="WriteSpeed" StringFormat="{}{0:F2} MB/s"/>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="读取IOPS:" FontSize="13" FontWeight="SemiBold" Width="100"/>
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <Binding Path="ReadIOPS" StringFormat="{}{0:F0}"/>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="写入IOPS:" FontSize="13" FontWeight="SemiBold" Width="100"/>
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <Binding Path="WriteIOPS" StringFormat="{}{0:F0}"/>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="读取延迟:" FontSize="13" FontWeight="SemiBold" Width="100"/>
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <Binding Path="ReadLatency" StringFormat="{}{0:F2} ms"/>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="写入延迟:" FontSize="13" FontWeight="SemiBold" Width="100"/>
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <Binding Path="WriteLatency" StringFormat="{}{0:F2} ms"/>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                </hc:Card>
+
+                <hc:Card Margin="0,0,0,15" Padding="15">
+                    <StackPanel>
+                        <TextBlock Text="配置信息" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+                        
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="文件大小:" FontSize="13" FontWeight="SemiBold" Width="100"/>
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <Binding Path="Config.FileSizeMB">
+                                        <Binding.Converter>
+                                            <local:FileSizeConverter/>
+                                        </Binding.Converter>
+                                    </Binding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="块大小:" FontSize="13" FontWeight="SemiBold" Width="100"/>
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <Binding Path="Config.BlockSizeKB" StringFormat="{}{0} KB" TargetNullValue="--"/>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="线程数:" FontSize="13" FontWeight="SemiBold" Width="100"/>
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <Binding Path="Config.ThreadCount" StringFormat="{}{0}" TargetNullValue="--"/>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="队列深度:" FontSize="13" FontWeight="SemiBold" Width="100"/>
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <Binding Path="Config.QueueDepth" StringFormat="{}{0}" TargetNullValue="--"/>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="持续时间:" FontSize="13" FontWeight="SemiBold" Width="100"/>
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <Binding Path="Config.DurationSeconds" StringFormat="{}{0} 秒" TargetNullValue="--"/>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                </hc:Card>
+
+                <hc:Card Padding="15"
+                           Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                    <StackPanel>
+                        <TextBlock Text="错误信息" FontSize="18" FontWeight="Bold" 
+                                   Foreground="Red" Margin="0,0,0,10"/>
+                        <TextBlock Text="{Binding ErrorMessage}" 
+                                   Foreground="Red" 
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </hc:Card>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Button Grid.Row="1" Click="Close_Click" 
+                HorizontalAlignment="Right" Margin="0,15,0,0"
+                Padding="10,5">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="✕" FontSize="14" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <TextBlock Text="关闭"/>
+            </StackPanel>
+        </Button>
+    </Grid>
+
+    <Window.Resources>
+        <local:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <local:FileSizeConverter x:Key="FileSizeConverter"/>
+    </Window.Resources>
+</Window>

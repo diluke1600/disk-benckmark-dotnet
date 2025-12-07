@@ -1,0 +1,125 @@
+<Window x:Class="DiskBenchmark.AdvancedSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        Title="高级设置" Height="500" Width="550"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <hc:Card Margin="0,0,0,15" Padding="15">
+                    <StackPanel>
+                        <TextBlock Text="性能参数" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="块大小 (KB):" VerticalAlignment="Center" Margin="0,0,10,10" FontSize="13" FontWeight="SemiBold"/>
+                            <ComboBox Grid.Row="0" Grid.Column="1" x:Name="BlockSizeComboBox" 
+                                     hc:InfoElement.Placeholder="选择块大小"
+                                     Margin="0,0,0,10"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="线程数:" VerticalAlignment="Center" Margin="0,0,10,10" FontSize="13" FontWeight="SemiBold"/>
+                            <hc:TextBox Grid.Row="1" Grid.Column="1" x:Name="ThreadCountTextBox" 
+                                       hc:InfoElement.Placeholder="线程数 (1-128)"
+                                       Margin="0,0,0,10"
+                                       PreviewTextInput="NumberValidationTextBox"
+                                       LostFocus="ThreadCountTextBox_LostFocus"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="队列深度:" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="13" FontWeight="SemiBold"/>
+                            <hc:TextBox Grid.Row="2" Grid.Column="1" x:Name="QueueDepthTextBox" 
+                                       hc:InfoElement.Placeholder="队列深度 (1-256)"
+                                       PreviewTextInput="NumberValidationTextBox"
+                                       LostFocus="QueueDepthTextBox_LostFocus"/>
+                        </Grid>
+                    </StackPanel>
+                </hc:Card>
+
+                <hc:Card Margin="0,0,0,15" Padding="15">
+                    <StackPanel>
+                        <TextBlock Text="FIO设置" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+                        <CheckBox x:Name="UseFIOCheckBox" Content="使用FIO进行测试" Margin="0,0,0,15"/>
+                        
+                        <TextBlock Text="FIO可执行文件路径:" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        <Grid Margin="0,0,0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <hc:TextBox x:Name="FioPathTextBox" Grid.Column="0" 
+                                       hc:InfoElement.Placeholder="FIO可执行文件路径"
+                                       Margin="0,0,10,0"
+                                       TextChanged="FioPathTextBox_TextChanged"/>
+                            <Button Grid.Column="1" Click="BrowseFioPath_Click"
+                                    Width="40">
+                                <TextBlock Text="📁" FontSize="18"/>
+                            </Button>
+                        </Grid>
+                        <TextBlock x:Name="FioVersionText" Text="FIO版本: --" 
+                                   FontSize="12" Foreground="Gray" Margin="0,0,0,15"/>
+
+                        <TextBlock Text="IO引擎:" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="IOEngineComboBox" 
+                                  hc:InfoElement.Placeholder="选择IO引擎"
+                                  Margin="0,0,0,5">
+                            <ComboBoxItem Content="windowsaio" IsSelected="True"/>
+                            <ComboBoxItem Content="sync"/>
+                            <ComboBoxItem Content="psync"/>
+                            <ComboBoxItem Content="libaio"/>
+                        </ComboBox>
+                        <TextBlock Text="windowsaio: Windows异步IO（推荐）&#x0a;sync: 同步IO&#x0a;psync: 伪同步IO&#x0a;libaio: Linux异步IO" 
+                                   FontSize="12" Foreground="Gray" Margin="0,0,0,15" TextWrapping="Wrap"/>
+
+                        <CheckBox x:Name="UseThreadCheckBox" Content="使用--thread参数" Margin="0,0,0,5"/>
+                        <TextBlock Text="启用后，fio将使用线程模式执行IO操作，可以提高性能" 
+                                   FontSize="12" Foreground="Gray" Margin="20,0,0,0" TextWrapping="Wrap"/>
+
+                        <CheckBox x:Name="TimeBasedCheckBox" Content="使用基于时间的测试（time_based）" Margin="0,0,0,5"/>
+                        <TextBlock Text="启用后，测试将运行指定的时间长度，而不是处理完指定大小的数据" 
+                                   FontSize="12" Foreground="Gray" Margin="20,0,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </hc:Card>
+
+                <hc:Card Padding="15">
+                    <StackPanel>
+                        <TextBlock Text="IO设置" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+                        <CheckBox x:Name="UseDirectIOCheckBox" Content="使用直接IO（绕过缓存）" Margin="0,0,0,5"/>
+                        <TextBlock Text="启用直接IO可以绕过系统缓存，获得更真实的磁盘性能数据" 
+                                   FontSize="12" Foreground="Gray" Margin="20,0,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </hc:Card>
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+            <Button Click="OK_Click" IsDefault="True"
+                    Margin="0,0,10,0"
+                    Background="#2196F3" Foreground="White" Padding="10,5">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="✓" FontSize="16" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBlock Text="确定"/>
+                </StackPanel>
+            </Button>
+            <Button Click="Cancel_Click" IsCancel="True"
+                    Padding="10,5">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="✕" FontSize="14" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBlock Text="取消"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>
