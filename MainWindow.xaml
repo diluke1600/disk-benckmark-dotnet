@@ -52,13 +52,13 @@
                 
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="10"/>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="10"/>
-                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
@@ -69,8 +69,8 @@
                     <!-- 测试路径 -->
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="测试路径" 
                                FontSize="13" FontWeight="SemiBold"
-                               VerticalAlignment="Center" Margin="0,0,8,8"/>
-                    <Grid Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="7" Margin="0,0,0,8">
+                               VerticalAlignment="Center" Margin="0,0,8,8" MinWidth="70"/>
+                    <Grid Grid.Row="0" Grid.Column="1" Margin="0,0,0,8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
@@ -86,34 +86,34 @@
                         </Button>
                     </Grid>
 
+                    <!-- 文件大小 -->
+                    <TextBlock Grid.Row="0" Grid.Column="3" Text="文件大小" 
+                               FontSize="13" FontWeight="SemiBold"
+                               VerticalAlignment="Center" Margin="0,0,8,8" MinWidth="70"/>
+                    <ComboBox Grid.Row="0" Grid.Column="4" x:Name="FileSizeComboBox" 
+                              hc:InfoElement.Placeholder="选择文件大小"
+                              Margin="0,0,0,8" Height="28" MinWidth="120"/>
+
                     <!-- 测试类型 -->
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="测试类型" 
                                FontSize="13" FontWeight="SemiBold"
-                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                               VerticalAlignment="Center" Margin="0,0,8,0" MinWidth="70"/>
                     <ComboBox Grid.Row="1" Grid.Column="1" x:Name="TestTypeComboBox" 
                               hc:InfoElement.Placeholder="选择测试类型"
-                              Margin="0,0,0,0" Height="28"/>
-
-                    <!-- 文件大小 -->
-                    <TextBlock Grid.Row="1" Grid.Column="3" Text="文件大小" 
-                               FontSize="13" FontWeight="SemiBold"
-                               VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <ComboBox Grid.Row="1" Grid.Column="4" x:Name="FileSizeComboBox" 
-                              hc:InfoElement.Placeholder="选择文件大小"
-                              Margin="0,0,0,0" Height="28"/>
+                              Margin="0,0,0,0" Height="28" MinWidth="150"/>
 
                     <!-- 持续时间 -->
-                    <TextBlock Grid.Row="1" Grid.Column="6" Text="持续时间" 
+                    <TextBlock Grid.Row="1" Grid.Column="3" Text="持续时间" 
                                FontSize="13" FontWeight="SemiBold"
-                               VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <Grid Grid.Row="1" Grid.Column="7">
+                               VerticalAlignment="Center" Margin="0,0,8,0" MinWidth="70"/>
+                    <Grid Grid.Row="1" Grid.Column="4">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <hc:TextBox Grid.Column="0" x:Name="DurationTextBox" 
                                     hc:InfoElement.Placeholder="持续时间"
-                                    Height="28" Margin="0,0,5,0"
+                                    Height="28" Margin="0,0,5,0" MinWidth="80"
                                     PreviewTextInput="NumberValidationTextBox"
                                     LostFocus="DurationTextBox_LostFocus"/>
                         <TextBlock Grid.Column="1" Text="秒" 

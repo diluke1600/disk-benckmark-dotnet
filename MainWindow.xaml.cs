@@ -117,6 +117,7 @@ namespace DiskBenchmark
 
             // 绑定配置变更事件
             TestPathTextBox.TextChanged += (s, e) => { _config.TestPath = TestPathTextBox.Text; UpdateCommandPreview(); };
+            TestPathTextBox.LostFocus += TestPathTextBox_LostFocus;
             TestTypeComboBox.SelectionChanged += (s, e) => { if (TestTypeComboBox.SelectedItem != null) _config.TestType = (TestType)TestTypeComboBox.SelectedItem; UpdateCommandPreview(); };
             FileSizeComboBox.SelectionChanged += (s, e) => 
             { 
@@ -162,6 +163,25 @@ namespace DiskBenchmark
                 _config.TestPath = dialog.SelectedPath;
                 TestPathTextBox.Text = _config.TestPath;
                 UpdateCommandPreview();
+            }
+        }
+
+        private void TestPathTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            // 验证路径
+            var pathValidationError = _benchmarkService.ValidateTestPath(_config.TestPath);
+            if (pathValidationError != null)
+            {
+                // 显示警告提示，但不阻止用户继续输入
+                TestPathTextBox.ToolTip = $"路径验证失败: {pathValidationError}";
+                TestPathTextBox.Background = System.Windows.Media.Brushes.LightPink;
+                LogService.Warn($"测试路径验证失败: {pathValidationError}");
+            }
+            else
+            {
+                // 清除警告提示
+                TestPathTextBox.ToolTip = null;
+                TestPathTextBox.Background = System.Windows.Media.Brushes.White;
             }
         }
 
@@ -256,6 +276,20 @@ namespace DiskBenchmark
             if (_isTestRunning) return;
 
             LogService.Info("用户点击开始测试按钮");
+            
+            // 验证测试路径
+            var pathValidationError = _benchmarkService.ValidateTestPath(_config.TestPath);
+            if (pathValidationError != null)
+            {
+                MessageBox.Show(
+                    $"测试路径验证失败:\n\n{pathValidationError}\n\n请修正路径后重试。",
+                    "路径验证失败",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                LogService.Warn($"测试路径验证失败: {pathValidationError}");
+                return;
+            }
+            
             _isTestRunning = true;
             StartTestButton.IsEnabled = false;
             StopTestButton.IsEnabled = true;

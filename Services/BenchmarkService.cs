@@ -167,6 +167,22 @@ namespace DiskBenchmark.Services
         {
             LogService.Info($"开始执行测试 - 类型: {config.TestType}, 路径: {config.TestPath}, 使用FIO: {config.UseFIO}");
             
+            // 验证测试路径
+            var pathValidationError = ValidateTestPath(config.TestPath);
+            if (pathValidationError != null)
+            {
+                LogService.Warn($"测试路径验证失败: {pathValidationError}");
+                var errorResult = new BenchmarkResult
+                {
+                    TestTime = DateTime.Now,
+                    TestPath = config.TestPath,
+                    TestType = config.TestType,
+                    Status = "失败",
+                    ErrorMessage = pathValidationError
+                };
+                return errorResult;
+            }
+            
             // 获取FIO版本（如果使用FIO）
             string fioVersion = "";
             if (config.UseFIO)
@@ -509,6 +525,97 @@ namespace DiskBenchmark.Services
                        $"  线程数: {config.ThreadCount}\n" +
                        $"  队列深度: {config.QueueDepth}\n" +
                        $"  持续时间: {config.DurationSeconds} 秒";
+            }
+        }
+
+        /// <summary>
+        /// 验证测试路径是否有效
+        /// </summary>
+        /// <param name="testPath">测试路径</param>
+        /// <returns>验证结果，如果有效返回null，否则返回错误消息</returns>
+        public string? ValidateTestPath(string testPath)
+        {
+            // 检查路径是否为空
+            if (string.IsNullOrWhiteSpace(testPath))
+            {
+                return "测试路径不能为空，请选择或输入有效的测试路径。";
+            }
+
+            // 检查路径是否包含非法字符
+            char[] invalidChars = Path.GetInvalidPathChars();
+            if (testPath.IndexOfAny(invalidChars) >= 0)
+            {
+                return $"测试路径包含非法字符。非法字符包括: {string.Join(", ", invalidChars.Where(c => !char.IsWhiteSpace(c)))}";
+            }
+
+            // 检查路径格式是否有效
+            try
+            {
+                // 尝试获取完整路径（会验证路径格式）
+                var fullPath = Path.GetFullPath(testPath);
+                
+                // 检查路径长度（Windows路径最大长度限制）
+                if (fullPath.Length > 260)
+                {
+                    return "测试路径过长，Windows路径最大长度为260个字符。";
+                }
+
+                // 检查目录是否存在
+                if (!Directory.Exists(fullPath))
+                {
+                    return $"测试路径不存在: {fullPath}\n请确保路径存在且可访问。";
+                }
+
+                // 检查是否为根目录（根目录可能不适合作为测试路径）
+                var rootPath = Path.GetPathRoot(fullPath);
+                if (string.Equals(fullPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), 
+                    rootPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), 
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    return "不能使用根目录作为测试路径，请选择具体的文件夹。";
+                }
+
+                // 检查路径是否可写（尝试创建临时文件测试）
+                try
+                {
+                    var testFile = Path.Combine(fullPath, "fio_test.tmp");
+                    // 不实际创建文件，只检查路径是否有效
+                    // 如果路径包含文件名，检查父目录
+                    var directory = Path.GetDirectoryName(testFile);
+                    if (string.IsNullOrEmpty(directory))
+                    {
+                        directory = fullPath;
+                    }
+                    
+                    // 检查目录权限（通过尝试获取文件列表）
+                    Directory.GetFiles(directory);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    return $"没有权限访问测试路径: {fullPath}\n请确保您有该路径的读写权限。";
+                }
+                catch (Exception ex)
+                {
+                    return $"无法访问测试路径: {fullPath}\n错误: {ex.Message}";
+                }
+
+                return null; // 验证通过
+            }
+            catch (ArgumentException ex)
+            {
+                return $"测试路径格式无效: {ex.Message}";
+            }
+            catch (PathTooLongException)
+            {
+                return "测试路径过长，请使用较短的路径。";
+            }
+            catch (NotSupportedException ex)
+            {
+                return $"测试路径格式不支持: {ex.Message}";
+            }
+            catch (Exception ex)
+            {
+                return $"验证测试路径时发生错误: {ex.Message}";
             }
         }
 
